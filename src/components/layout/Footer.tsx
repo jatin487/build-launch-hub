@@ -35,7 +35,7 @@ export function Footer() {
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
                 <Code2 className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold text-foreground">DevForge</span>
+              <span className="text-xl font-bold text-foreground">Atoolsera</span>
             </Link>
             <p className="text-muted-foreground mb-6 max-w-sm">
               We build exceptional digital experiences that help businesses grow. From stunning websites to powerful Shopify stores.
@@ -43,7 +43,7 @@ export function Footer() {
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                <span className="text-sm">hello@devforge.agency</span>
+                <span className="text-sm">hello@atoolsera.com</span>
               </div>
               <div className="flex items-center gap-3 text-muted-foreground">
                 <Phone className="h-4 w-4" />
@@ -129,7 +129,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-8 pt-8 border-t border-border flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} DevForge. All rights reserved.
+            © {new Date().getFullYear()} Atoolsera. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">

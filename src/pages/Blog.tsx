@@ -76,7 +76,7 @@ export default function Blog() {
                 Insights & Resources
               </div>
               <h1 className="text-4xl font-bold text-foreground sm:text-5xl">
-                DevForge Blog
+                Atoolsera Blog
               </h1>
               <p className="mt-4 text-lg text-muted-foreground">
                 Expert insights on web development, e-commerce, design trends, and digital growth strategies.
