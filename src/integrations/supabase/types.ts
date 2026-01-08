@@ -92,6 +92,124 @@ export type Database = {
         }
         Relationships: []
       }
+      developer_screenshots: {
+        Row: {
+          created_at: string
+          developer_id: string
+          file_name: string
+          file_url: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          developer_id: string
+          file_name: string
+          file_url: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          developer_id?: string
+          file_name?: string
+          file_url?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_screenshots_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      developer_skills: {
+        Row: {
+          created_at: string
+          developer_id: string
+          id: string
+          skill_name: string
+          years_experience: number | null
+        }
+        Insert: {
+          created_at?: string
+          developer_id: string
+          id?: string
+          skill_name: string
+          years_experience?: number | null
+        }
+        Update: {
+          created_at?: string
+          developer_id?: string
+          id?: string
+          skill_name?: string
+          years_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_skills_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      developers: {
+        Row: {
+          created_at: string
+          email: string
+          experience_years: number
+          github_url: string | null
+          id: string
+          is_available: boolean | null
+          location: string | null
+          name: string
+          portfolio_url: string | null
+          preferred_project_types: string[] | null
+          role: string
+          status: Database["public"]["Enums"]["developer_status"]
+          updated_at: string
+          user_id: string
+          weekly_hours: number | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          experience_years?: number
+          github_url?: string | null
+          id?: string
+          is_available?: boolean | null
+          location?: string | null
+          name: string
+          portfolio_url?: string | null
+          preferred_project_types?: string[] | null
+          role: string
+          status?: Database["public"]["Enums"]["developer_status"]
+          updated_at?: string
+          user_id: string
+          weekly_hours?: number | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          experience_years?: number
+          github_url?: string | null
+          id?: string
+          is_available?: boolean | null
+          location?: string | null
+          name?: string
+          portfolio_url?: string | null
+          preferred_project_types?: string[] | null
+          role?: string
+          status?: Database["public"]["Enums"]["developer_status"]
+          updated_at?: string
+          user_id?: string
+          weekly_hours?: number | null
+        }
+        Relationships: []
+      }
       job_applications: {
         Row: {
           cover_letter: string | null
@@ -169,6 +287,86 @@ export type Database = {
           title?: string
         }
         Relationships: []
+      }
+      project_assignments: {
+        Row: {
+          assigned_at: string
+          developer_id: string
+          id: string
+          notes: string | null
+          project_submission_id: string
+          status: string | null
+        }
+        Insert: {
+          assigned_at?: string
+          developer_id: string
+          id?: string
+          notes?: string | null
+          project_submission_id: string
+          status?: string | null
+        }
+        Update: {
+          assigned_at?: string
+          developer_id?: string
+          id?: string
+          notes?: string | null
+          project_submission_id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_assignments_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_assignments_project_submission_id_fkey"
+            columns: ["project_submission_id"]
+            isOneToOne: false
+            referencedRelation: "project_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_files: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_size: number | null
+          file_url: string
+          id: string
+          project_submission_id: string | null
+          temp_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          project_submission_id?: string | null
+          temp_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          project_submission_id?: string | null
+          temp_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_files_project_submission_id_fkey"
+            columns: ["project_submission_id"]
+            isOneToOne: false
+            referencedRelation: "project_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       project_submissions: {
         Row: {
@@ -251,14 +449,43 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "admin" | "developer"
+      developer_status: "pending" | "approved" | "rejected"
       experience_level: "junior" | "mid" | "senior"
       job_type: "frontend" | "backend" | "fullstack"
       project_type:
@@ -393,6 +620,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "developer"],
+      developer_status: ["pending", "approved", "rejected"],
       experience_level: ["junior", "mid", "senior"],
       job_type: ["frontend", "backend", "fullstack"],
       project_type: [

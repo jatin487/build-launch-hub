@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { LiveChat } from '@/components/chat/LiveChat';
-import { ArrowLeft, ArrowRight, Check, Loader2, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Loader2, Sparkles, Upload, X, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,8 +17,9 @@ import { cn } from '@/lib/utils';
 const steps = [
   { id: 1, title: 'Project Type', description: 'What do you need?' },
   { id: 2, title: 'Features', description: 'What features do you need?' },
-  { id: 3, title: 'Budget & Timeline', description: 'What\'s your budget?' },
-  { id: 4, title: 'Contact Info', description: 'How can we reach you?' },
+  { id: 3, title: 'Reference Files', description: 'Upload any reference materials' },
+  { id: 4, title: 'Budget & Timeline', description: 'What\'s your budget?' },
+  { id: 5, title: 'Contact Info', description: 'How can we reach you?' },
 ];
 
 const projectTypes = [
@@ -59,10 +60,18 @@ const timelineOptions = [
   { value: 'flexible', label: 'Flexible' },
 ];
 
+interface UploadedFile {
+  url: string;
+  name: string;
+  size: number;
+}
+
 export default function StartProject() {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [formData, setFormData] = useState({
     projectType: '',
     features: [] as string[],
@@ -84,6 +93,50 @@ export default function StartProject() {
     }));
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    setUploading(true);
+    
+    for (const file of Array.from(files)) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('project-files')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        toast.error(`Failed to upload ${file.name}`);
+        continue;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('project-files')
+        .getPublicUrl(fileName);
+
+      setUploadedFiles(prev => [...prev, { 
+        url: urlData.publicUrl, 
+        name: file.name,
+        size: file.size 
+      }]);
+    }
+
+    setUploading(false);
+    e.target.value = '';
+  };
+
+  const removeFile = (url: string) => {
+    setUploadedFiles(prev => prev.filter(f => f.url !== url));
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  };
+
   const canProceed = () => {
     switch (currentStep) {
       case 1:
@@ -91,8 +144,10 @@ export default function StartProject() {
       case 2:
         return formData.features.length > 0 || formData.customRequirements.trim();
       case 3:
-        return !!formData.budget && !!formData.timeline;
+        return true; // Optional step
       case 4:
+        return !!formData.budget && !!formData.timeline;
+      case 5:
         return formData.name.trim() && formData.email.trim();
       default:
         return false;
@@ -113,7 +168,7 @@ export default function StartProject() {
       ? parseInt(budgetParts[1].replace(/\D/g, '')) 
       : budgetParts[0].includes('+') ? null : budgetMin;
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('project_submissions')
       .insert({
         project_type: formData.projectType as 'new_website' | 'shopify_store' | 'website_redesign' | 'maintenance',
@@ -126,7 +181,21 @@ export default function StartProject() {
         email: formData.email.trim(),
         phone: formData.phone.trim() || null,
         company: formData.company.trim() || null,
-      });
+      })
+      .select()
+      .single();
+
+    // Save uploaded files references
+    if (uploadedFiles.length > 0 && data) {
+      await supabase.from('project_files').insert(
+        uploadedFiles.map(f => ({
+          project_submission_id: data.id,
+          file_url: f.url,
+          file_name: f.name,
+          file_size: f.size,
+        }))
+      );
+    }
 
     setLoading(false);
 
