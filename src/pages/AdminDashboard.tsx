@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { toast } from 'sonner';
 import { 
   Loader2, Users, FolderKanban, CheckCircle, XCircle, 
-  Clock, Eye, UserPlus, ToggleLeft, ToggleRight, Github, ExternalLink
+  Clock, Eye, UserPlus, ToggleLeft, ToggleRight, Github, ExternalLink, FileText, Mail, Phone, Link as LinkIcon
 } from 'lucide-react';
 
 interface Developer {
@@ -55,6 +55,19 @@ interface Assignment {
   project_submissions?: { name: string; project_type: string };
 }
 
+interface JobApplication {
+  id: string;
+  job_title: string;
+  job_type: 'frontend' | 'backend' | 'fullstack';
+  name: string;
+  email: string;
+  phone: string | null;
+  portfolio_url: string | null;
+  cover_letter: string | null;
+  resume_url: string | null;
+  created_at: string;
+}
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { user, role, loading: authLoading, signOut } = useAuth();
@@ -62,6 +75,7 @@ export default function AdminDashboard() {
   const [developers, setDevelopers] = useState<Developer[]>([]);
   const [projects, setProjects] = useState<ProjectSubmission[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [jobApplications, setJobApplications] = useState<JobApplication[]>([]);
   const [selectedProject, setSelectedProject] = useState<ProjectSubmission | null>(null);
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
 
@@ -105,9 +119,16 @@ export default function AdminDashboard() {
       `)
       .order('assigned_at', { ascending: false });
 
+    // Fetch job applications
+    const { data: jobAppsData } = await supabase
+      .from('job_applications')
+      .select('*')
+      .order('created_at', { ascending: false });
+
     setDevelopers(devsData || []);
     setProjects(projectsData || []);
     setAssignments(assignmentsData || []);
+    setJobApplications(jobAppsData || []);
     setLoading(false);
   };
 
@@ -245,6 +266,7 @@ export default function AdminDashboard() {
               <TabsTrigger value="developers">Developers</TabsTrigger>
               <TabsTrigger value="projects">Projects</TabsTrigger>
               <TabsTrigger value="assignments">Assignments</TabsTrigger>
+              <TabsTrigger value="job-applications">Job Applications</TabsTrigger>
             </TabsList>
 
             {/* Developers Tab */}
@@ -434,6 +456,72 @@ export default function AdminDashboard() {
                             </p>
                           </div>
                           <Badge>{assignment.status}</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Job Applications Tab */}
+            <TabsContent value="job-applications" className="space-y-4">
+              {jobApplications.length === 0 ? (
+                <Card>
+                  <CardContent className="py-12 text-center text-muted-foreground">
+                    No job applications yet.
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid gap-4">
+                  {jobApplications.map((app) => (
+                    <Card key={app.id}>
+                      <CardContent className="p-6">
+                        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="text-lg font-semibold">{app.name}</h3>
+                              <Badge variant="outline">{app.job_type}</Badge>
+                            </div>
+                            <p className="text-sm font-medium text-foreground mb-2">
+                              Applied for: {app.job_title}
+                            </p>
+                            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <Mail className="h-4 w-4" />
+                                <a href={`mailto:${app.email}`} className="hover:text-foreground">
+                                  {app.email}
+                                </a>
+                              </div>
+                              {app.phone && (
+                                <div className="flex items-center gap-1">
+                                  <Phone className="h-4 w-4" />
+                                  {app.phone}
+                                </div>
+                              )}
+                              {app.portfolio_url && (
+                                <a 
+                                  href={app.portfolio_url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1 hover:text-foreground"
+                                >
+                                  <LinkIcon className="h-4 w-4" />
+                                  Portfolio
+                                </a>
+                              )}
+                            </div>
+                            {app.cover_letter && (
+                              <div className="mt-3">
+                                <p className="text-sm text-muted-foreground line-clamp-2">
+                                  {app.cover_letter}
+                                </p>
+                              </div>
+                            )}
+                            <p className="text-xs text-muted-foreground mt-2">
+                              Applied: {new Date(app.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
