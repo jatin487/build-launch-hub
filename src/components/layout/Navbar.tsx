@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Code2 } from 'lucide-react';
+import { Menu, X, Code2, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
 
 const navLinks = [
   { href: '/#services', label: 'Services' },
@@ -16,6 +17,7 @@ const navLinks = [
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
   const handleNavClick = (href: string) => {
     setIsOpen(false);
@@ -57,8 +59,20 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* CTA Button */}
-          <div className="hidden md:block">
+          {/* CTA Buttons */}
+          <div className="hidden items-center gap-2 md:flex">
+            {user ? (
+              <Button variant="outline" onClick={signOut}>
+                Sign Out
+              </Button>
+            ) : (
+              <Button variant="outline" asChild>
+                <Link to="/auth">
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Login
+                </Link>
+              </Button>
+            )}
             <Button asChild>
               <Link to="/start-project">Start Your Project</Link>
             </Button>
@@ -94,7 +108,19 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <div className="mt-4 pt-4 border-t border-border">
+              <div className="mt-4 pt-4 border-t border-border flex flex-col gap-2">
+                {user ? (
+                  <Button variant="outline" className="w-full" onClick={() => { signOut(); setIsOpen(false); }}>
+                    Sign Out
+                  </Button>
+                ) : (
+                  <Button variant="outline" asChild className="w-full">
+                    <Link to="/auth" onClick={() => setIsOpen(false)}>
+                      <LogIn className="mr-2 h-4 w-4" />
+                      Login
+                    </Link>
+                  </Button>
+                )}
                 <Button asChild className="w-full">
                   <Link to="/start-project" onClick={() => setIsOpen(false)}>
                     Start Your Project
