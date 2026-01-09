@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Code2, LogIn } from 'lucide-react';
+import { Menu, X, Code2, LogIn, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -17,7 +17,13 @@ const navLinks = [
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const { user, role, signOut } = useAuth();
+
+  const getDashboardLink = () => {
+    if (role === 'admin') return '/admin';
+    if (role === 'developer') return '/developer';
+    return '/developer/onboarding';
+  };
 
   const handleNavClick = (href: string) => {
     setIsOpen(false);
@@ -62,9 +68,17 @@ export function Navbar() {
           {/* CTA Buttons */}
           <div className="hidden items-center gap-2 md:flex">
             {user ? (
-              <Button variant="outline" onClick={signOut}>
-                Sign Out
-              </Button>
+              <>
+                <Button variant="ghost" asChild>
+                  <Link to={getDashboardLink()}>
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    {role === 'admin' ? 'Admin' : 'Dashboard'}
+                  </Link>
+                </Button>
+                <Button variant="outline" onClick={signOut}>
+                  Sign Out
+                </Button>
+              </>
             ) : (
               <Button variant="outline" asChild>
                 <Link to="/auth">
@@ -110,9 +124,17 @@ export function Navbar() {
               ))}
               <div className="mt-4 pt-4 border-t border-border flex flex-col gap-2">
                 {user ? (
-                  <Button variant="outline" className="w-full" onClick={() => { signOut(); setIsOpen(false); }}>
-                    Sign Out
-                  </Button>
+                  <>
+                    <Button variant="ghost" asChild className="w-full justify-start">
+                      <Link to={getDashboardLink()} onClick={() => setIsOpen(false)}>
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        {role === 'admin' ? 'Admin Dashboard' : 'Developer Dashboard'}
+                      </Link>
+                    </Button>
+                    <Button variant="outline" className="w-full" onClick={() => { signOut(); setIsOpen(false); }}>
+                      Sign Out
+                    </Button>
+                  </>
                 ) : (
                   <Button variant="outline" asChild className="w-full">
                     <Link to="/auth" onClick={() => setIsOpen(false)}>
