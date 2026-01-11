@@ -10,9 +10,7 @@ import StartProject from "./pages/StartProject";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Auth from "./pages/Auth";
-import AdminDashboard from "./pages/AdminDashboard";
-import DeveloperOnboarding from "./pages/DeveloperOnboarding";
-import DeveloperDashboard from "./pages/DeveloperDashboard";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,9 +29,7 @@ const App = () => (
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/developer/onboarding" element={<DeveloperOnboarding />} />
-            <Route path="/developer/dashboard" element={<DeveloperDashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
