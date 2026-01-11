@@ -19,11 +19,7 @@ export function Navbar() {
   const location = useLocation();
   const { user, role, signOut } = useAuth();
 
-  const getDashboardLink = () => {
-    if (role === 'admin') return '/admin';
-    if (role === 'developer') return '/developer';
-    return '/developer/onboarding';
-  };
+  const getDashboardLink = () => '/dashboard';
 
   const handleNavClick = (href: string) => {
     setIsOpen(false);
@@ -72,7 +68,7 @@ export function Navbar() {
                 <Button variant="ghost" asChild>
                   <Link to={getDashboardLink()}>
                     <LayoutDashboard className="mr-2 h-4 w-4" />
-                    {role === 'admin' ? 'Admin' : 'Dashboard'}
+                    Dashboard
                   </Link>
                 </Button>
                 <Button variant="outline" onClick={signOut}>
@@ -128,7 +124,7 @@ export function Navbar() {
                     <Button variant="ghost" asChild className="w-full justify-start">
                       <Link to={getDashboardLink()} onClick={() => setIsOpen(false)}>
                         <LayoutDashboard className="mr-2 h-4 w-4" />
-                        {role === 'admin' ? 'Admin Dashboard' : 'Developer Dashboard'}
+                        Dashboard
                       </Link>
                     </Button>
                     <Button variant="outline" className="w-full" onClick={() => { signOut(); setIsOpen(false); }}>
